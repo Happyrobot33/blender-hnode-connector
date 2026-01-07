@@ -53,18 +53,6 @@ def gen_truss_data(start_channel, object):
     for i in range(12):
         data_dict[i + base_channel] = combined[i]
     
-        
-def append_function_unique(fn_list, fn):
-    """ Appending 'fn' to 'fn_list',
-        Remove any functions from with a matching name & module.
-    """
-    fn_name = fn.__name__
-    fn_module = fn.__module__
-    for i in range(len(fn_list) - 1, -1, -1):
-        if fn_list[i].__name__ == fn_name and fn_list[i].__module__ == fn_module:
-            del fn_list[i]
-    fn_list.append(fn)
-    
 def dostuff(scene):
     #needs truss position at 255 to work
     data_dict[5] = 255 #custom truss position

@@ -5,12 +5,14 @@ bl_info = {
 }
 
 import bpy
-from bthl.panel.main_panel import MainPanel
+import inspect
+import sys
+from bthl.panel.global_control import GlobalControlPanel
 from bthl.modal.sender_modal import UDPClientToggleModal
 from bthl.tasks.sender import UDPClientTasks
 
 classes = {
-    MainPanel,
+    GlobalControlPanel,
     UDPClientToggleModal,
 }
 
