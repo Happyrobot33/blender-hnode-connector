@@ -9,33 +9,14 @@ from math import radians
 import mathutils
 from sbstudio.plugin.constants import Collections
 from sbstudio.plugin.colors import get_color_of_drone
-def send_udp_packet(ip, port, message):
-    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    try:
-        sock.sendto(message, (ip, port))
-        print(f"Sent message to {ip}:{port}")
-    except Exception as e:
-        print(f"Error sending message: {e}")
-    finally:
-        sock.close()
-def generateMessage(data_dict):
-    #standard is
-    #short,byte for each channel
-    bmessage = []
-    #iterate over each channel in order
-    for channel in sorted(data_dict.keys()):
-        value = data_dict[channel]
-        #now encode the channel as short
-        bmessage += channel.to_bytes(2, byteorder='big')
-        #now encode the value as byte
-        bmessage += value.to_bytes(1, byteorder='big')
-    return bytes(bmessage)
-def scale_number(unscaled, to_min, to_max, from_min, from_max):
-    return (to_max-to_min)*(unscaled-from_min)/(from_max-from_min)+to_min
+
 #dmx data dict
 #key: channel number
 #value: channel value
 data_dict = {}
+
+def scale_number(unscaled, to_min, to_max, from_min, from_max):
+    return (to_max-to_min)*(unscaled-from_min)/(from_max-from_min)+to_min
 
 def getPositionAsDMX(loc, range, bytesPerAxis=1):
     xscale = int(scale_number(loc.x, 0, (2**(8*bytesPerAxis))-1, -range, range))
@@ -100,27 +81,7 @@ def gen_truss_data(start_channel, object):
     #write them starting at channel 0
     for i in range(12):
         data_dict[i + base_channel] = combined[i]
-        
-def send():
-    target_ip = "127.0.0.1"
-    target_port = 7000
-    #generate X arbitrary channel data
-    # for i in range(11800):
-    #     if i not in data_dict:
-    #         data_dict[i] = random.randint(0, 255)
-    fragments = []
-    fragmentation_size = 3070 #max size of a udp packet roughly
-    #loop over every dict object, fragmenting if necessary
-    #all we need to do is split the dictionary into smaller dictionaries
-    for i in range(0, len(data_dict), fragmentation_size):
-        fragment = dict(list(data_dict.items())[i:i+fragmentation_size])
-        fragments.append(fragment)
-    for fragment in fragments:
-        message = generateMessage(fragment)
-        #print first channel
-        #print(message)
-        send_udp_packet(target_ip, target_port, message)
-        time.sleep(0.001)  # brief pause to avoid overwhelming the network
+    
         
 def append_function_unique(fn_list, fn):
     """ Appending 'fn' to 'fn_list',
@@ -144,11 +105,12 @@ def dostuff(scene):
         
     gen_drone_data(2880)
     send()
+
+
+# def register():
+#     append_function_unique(bpy.app.handlers.frame_change_post, dostuff)
+#     append_function_unique(bpy.app.handlers.depsgraph_update_post, dostuff)
     
-def register():
-    append_function_unique(bpy.app.handlers.frame_change_post, dostuff)
-    append_function_unique(bpy.app.handlers.depsgraph_update_post, dostuff)
-    
-if __name__ == "__main__":
-    register()
-    dostuff(None)
+# if __name__ == "__main__":
+#     register()
+#     dostuff(None
