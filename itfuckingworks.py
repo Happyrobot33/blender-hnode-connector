@@ -2,29 +2,12 @@ import bpy
 from bthl.api.callbacks import add_callback
 from bthl.api.dmxdata import set_channel_value
 from bthl.util.dmx import *
+from bthl.util.general import *
 import mathutils
 import math
 import itertools
 import time
 from bpy_extras.io_utils import axis_conversion
-
-CONV_MATRIX = mathutils.Matrix((
-(1,0,0,0),
-(0,0,1,0),
-(0,1,0,0),
-(0,0,0,1)))
-
-def getQuaternionAsDMX(rot, range, bytesPerAxis=1) -> bytearray:
-    xscale = int(scale_number(rot.x, 0, (2**(8*bytesPerAxis))-1, -range, range))
-    yscale = int(scale_number(rot.y, 0, (2**(8*bytesPerAxis))-1, -range, range))
-    zscale = int(scale_number(rot.z, 0, (2**(8*bytesPerAxis))-1, -range, range))
-    wscale = int(scale_number(rot.w, 0, (2**(8*bytesPerAxis))-1, -range, range))
-    #now convert to bytes
-    xbytes = xscale.to_bytes(bytesPerAxis, byteorder='big')
-    ybytes = yscale.to_bytes(bytesPerAxis, byteorder='big')
-    zbytes = zscale.to_bytes(bytesPerAxis, byteorder='big')
-    wbytes = wscale.to_bytes(bytesPerAxis, byteorder='big')
-    return bytearray(xbytes + ybytes + zbytes + wbytes)
 
 def gen_truss_data(start_channel, object):
     if object == None:
@@ -42,18 +25,12 @@ def gen_truss_data(start_channel, object):
     
     #ROTATION
     mat = object.matrix_world.copy()
-    #mat = CONV_MATRIX @ mat # @ CONV_MATRIX.inverse()
     oq = mat.to_quaternion()
-    #rotate around the Z axis in blender first
-    initialfixrot = mathutils.Euler((math.radians(0),math.radians(0),math.radians(90)))
-    oq = initialfixrot.to_quaternion() @ oq
     
+    unity_quat = convert_blender_quat_to_unity_quat(oq)
+    unity_eul = convert_unity_quat_to_unity_euler(unity_quat)
     
-    baserot = mathutils.Euler((math.radians(-90),math.radians(0),math.radians(0)))
-    oq = baserot.to_quaternion() @ mathutils.Quaternion((oq.w, oq.x, -oq.y, -oq.z))
-    
-    combined += getRotationAsDMX(oq.to_euler("ZXY"), range=math.radians(540 / 2), bytesPerAxis=2)
-    #combined += getQuaternionAsDMX(oq, range=1,bytesPerAxis=2)
+    combined += getRotationAsDMX(unity_eul, range=math.radians(540 / 2), bytesPerAxis=2)
     
     #hardcoded additional info
     combined.append(0) #fixture offset
