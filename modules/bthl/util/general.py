@@ -1,6 +1,6 @@
 import bpy
 
-def scale_number(unscaled, to_min, to_max, from_min, from_max):
+def scale_number(unscaled: float, to_min: float, to_max: float, from_min: float, from_max: float) -> float:
     return (to_max-to_min)*(unscaled-from_min)/(from_max-from_min)+to_min
 
 # def register_list(cls: list):

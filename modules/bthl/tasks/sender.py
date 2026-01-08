@@ -45,9 +45,9 @@ def send(scene, depsgraph):
     # for i in range(11800):
     #     if i not in data_dict:
     #         data_dict[i] = random.randint(0, 255)
-    for i in range(20):
-        if i not in dmx_buffer:
-            dmx_buffer[i] = random.randint(0, 255)
+    # for i in range(20):
+    #     if i not in dmx_buffer:
+    #         dmx_buffer[i] = random.randint(0, 255)
     fragments = []
     fragmentation_size = 3070 #max size of a udp packet roughly
     #loop over every dict object, fragmenting if necessary
