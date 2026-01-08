@@ -39,8 +39,7 @@ def receive() -> float:
         fps = scene.render.fps / scene.render.fps_base
         #convert the value to frames
         frame = frames
-        if milliseconds > 0:
-            frame += int((milliseconds / 1000) * fps)
+        frame += int((milliseconds / 1000) * fps)
         #set the current frame of the scene
         #check if we are still on this frame, if so do nothing
         if scene.frame_current == frame:
