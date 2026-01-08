@@ -20,16 +20,21 @@ def receive() -> float:
         data, addr = sock.recvfrom(10)  # buffer size is 65535 bytes
         print(f"Received message from {addr}: {data}")
         #the data coming in is a signed long long in bytes, big endian
-        value = int.from_bytes(data, byteorder='big', signed=True)
+        milliseconds = int.from_bytes(data[0:4], byteorder='big', signed=True)
+        frames = data[4]
         # val = random.randint(0, 20)
+        scene = bpy.context.scene
+        # scene.frame_set(milliseconds)
+        # return 0.01
         # scene = bpy.context.scene
         # scene.frame_set(int(value / 1000))
         # return 0.001
         #get the scene
-        scene = bpy.context.scene
         fps = scene.render.fps / scene.render.fps_base
         #convert the value to frames
-        frame = int((value / 1000.0) * fps)
+        frame = frames
+        if milliseconds > 0:
+            frame += int((milliseconds / 1000) * fps)
         #set the current frame of the scene
         scene.frame_set(frame)
         return 0.001
