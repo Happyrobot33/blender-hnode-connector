@@ -14,10 +14,10 @@ def receive() -> float:
         sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         #bind localhost on port 7001
         sock.bind(("localhost", 7001))
-        # sock.setblocking(False)
+        sock.setblocking(False)
     
     try:
-        data, addr = sock.recvfrom(20)  # buffer size is 65535 bytes
+        data, addr = sock.recvfrom(10)  # buffer size is 65535 bytes
         print(f"Received message from {addr}: {data}")
         #the data coming in is a signed long long in bytes, big endian
         value = int.from_bytes(data, byteorder='big', signed=True)
